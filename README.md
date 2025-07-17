@@ -1,3 +1,235 @@
+CREATE TABLE countries (
+    isocode VARCHAR(6) PRIMARY KEY,
+    name VARCHAR(50) UNIQUE,
+    alfatwocode VARCHAR(2) UNIQUE,
+    alfathreecode VARCHAR(4) UNIQUE
+);
+CREATE TABLE subdivision_category(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    category VARCHAR(100)
+);
+
+CREATE TABLE states_regions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(6),
+    name VARCHAR(60),
+    country_id VARCHAR(6),
+    code3166 VARCHAR(10),
+    subdivision_id INT,
+    FOREIGN KEY (country_id) REFERENCES countries(isocode),
+    FOREIGN KEY (subdivision_id) REFERENCES subdivision_category(id)
+);
+
+CREATE TABLE cities_municipalities (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(6),
+    name VARCHAR(60),
+    state_region_id INT,
+    FOREIGN KEY (state_region_id) REFERENCES states_regions(id)
+);
+
+CREATE TABLE type_identifications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    description VARCHAR(60),
+    suffix VARCHAR(5)
+);
+
+CREATE TABLE audiences (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    description VARCHAR(60)
+);
+
+CREATE TABLE customers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(80),
+    city_id INT,
+    audience_id INT,
+    cellphone VARCHAR(20) UNIQUE,
+    email VARCHAR(100),
+    address VARCHAR(120),
+    FOREIGN KEY (city_id) REFERENCES cities_municipalities(id),
+    FOREIGN KEY (audience_id) REFERENCES audiences(id)
+);
+
+CREATE TABLE categories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(60) UNIQUE,
+    description VARCHAR(60)
+);
+
+CREATE TABLE products (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(60),
+    detail TEXT,
+    price DOUBLE,
+    category_id INT,
+    image VARCHAR(80),
+    FOREIGN KEY (category_id) REFERENCES categories(id)
+);
+
+CREATE TABLE unit_of_measure (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    description VARCHAR(60)
+);
+
+CREATE TABLE companies (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(80),
+    type_id INT,
+    category_id INT,
+    city_id INT,
+    audience_id INT,
+    cellphone VARCHAR(15),
+    email VARCHAR(80),
+    FOREIGN KEY (type_id) REFERENCES type_identifications(id),
+    FOREIGN KEY (category_id) REFERENCES categories(id),
+    FOREIGN KEY (city_id) REFERENCES cities_municipalities(id),
+    FOREIGN KEY (audience_id) REFERENCES audiences(id)
+);
+
+CREATE TABLE company_products (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT,
+    product_id INT,
+    price DOUBLE,
+    unitmeasure_id INT,
+    FOREIGN KEY (company_id) REFERENCES companies(id),
+    FOREIGN KEY (product_id) REFERENCES products(id),
+    FOREIGN KEY (unitmeasure_id) REFERENCES unit_of_measure(id)
+);
+
+CREATE TABLE favorites (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id INT,
+    company_id INT,
+    FOREIGN KEY (customer_id) REFERENCES customers(id),
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
+CREATE TABLE details_favorites (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    favorite_id INT,
+    product_id INT,
+    FOREIGN KEY (favorite_id) REFERENCES favorites(id),
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+CREATE TABLE memberships (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50),
+    description TEXT
+);
+
+CREATE TABLE periods (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50)
+);
+
+CREATE TABLE membership_periods (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    membership_id INT,
+    period_id INT,
+    price DOUBLE,
+    FOREIGN KEY (membership_id) REFERENCES memberships(id),
+    FOREIGN KEY (period_id) REFERENCES periods(id)
+);
+
+CREATE TABLE benefits (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    description VARCHAR(80),
+    detail TEXT
+);
+
+CREATE TABLE membership_benefits (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    membership_id INT,
+    period_id INT,
+    audience_id INT,
+    benefit_id INT,
+    FOREIGN KEY (membership_id) REFERENCES memberships(id),
+    FOREIGN KEY (period_id) REFERENCES periods(id),
+    FOREIGN KEY (audience_id) REFERENCES audiences(id),
+    FOREIGN KEY (benefit_id) REFERENCES benefits(id)
+);
+
+CREATE TABLE audience_benefits (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    audience_id INT,
+    benefit_id INT,
+    FOREIGN KEY (audience_id) REFERENCES audiences(id),
+    FOREIGN KEY (benefit_id) REFERENCES benefits(id)
+);
+
+CREATE TABLE polls (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(80),
+    description TEXT,
+    is_active BOOLEAN,
+    categorypoll_id INT
+);
+
+CREATE TABLE categories_polls (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(80)
+);
+
+CREATE TABLE rates (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id INT,
+    company_id INT,
+    poll_id INT,
+    date_rating DATETIME,
+    rating DOUBLE,
+    FOREIGN KEY (customer_id) REFERENCES customers(id),
+    FOREIGN KEY (company_id) REFERENCES companies(id),
+    FOREIGN KEY (poll_id) REFERENCES polls(id)
+);
+
+CREATE TABLE quality_products (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT,
+    customer_id INT,
+    poll_id INT,
+    company_id INT,
+    date_rating DATETIME,
+    rating DOUBLE,
+    FOREIGN KEY (product_id) REFERENCES products(id),
+    FOREIGN KEY (customer_id) REFERENCES customers(id),
+    FOREIGN KEY (poll_id) REFERENCES polls(id),
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
+
+CREATE TABLE poll_questions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    poll_id INT,
+    question TEXT,
+    FOREIGN KEY (poll_id) REFERENCES polls(id)
+);
+
+
+CREATE TABLE poll_responses (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    poll_id INT,
+    question_id INT,
+    customer_id INT,
+    response TEXT,
+    date_response DATETIME DEFAULT NOW(),
+    FOREIGN KEY (poll_id) REFERENCES polls(id),
+    FOREIGN KEY (question_id) REFERENCES poll_questions(id),
+    FOREIGN KEY (customer_id) REFERENCES customers(id)
+);
+
+CREATE TABLE historial_precios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_product_id INT,
+    precio_anterior DOUBLE,
+    precio_nuevo DOUBLE,
+    fecha_cambio DATETIME DEFAULT NOW(),
+    FOREIGN KEY (company_product_id) REFERENCES company_products(id)
+);
+
+
 1. insercion de paises
 
 INSERT INTO countries(isocode, name, alfatwocode, alfathreecode) VALUES
