@@ -4,10 +4,13 @@ CREATE TABLE countries (
     alfatwocode VARCHAR(2) UNIQUE,
     alfathreecode VARCHAR(4) UNIQUE
 );
+
+
 CREATE TABLE subdivision_category(
     id INT AUTO_INCREMENT PRIMARY KEY,
     category VARCHAR(100)
 );
+
 
 CREATE TABLE states_regions (
     id INT AUTO_INCREMENT PRIMARY KEY,
